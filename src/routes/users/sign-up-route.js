@@ -3,11 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 
-const usersPath = path.join(__dirname, '../../', 'db', 'users');
 const writeFile = util.promisify(fs.writeFile);
 
 const saveUser = (fileName, data) => {
-  return writeFile(`${usersPath}/${fileName}.json`, data);
+  const usersPath = path.join(__dirname, '../../', 'db', 'users', fileName + '.json');
+  return writeFile(usersPath, data);
 };
 
 const signUpRoute = (request, response) => {
@@ -19,7 +19,7 @@ const signUpRoute = (request, response) => {
       body = body + data;
     });
     request.on('end', function () {
-      const user = JSON.parse(body)
+      const user = JSON.parse(body);
       const username = user.username;
       const resp = {};
       resp.user = user;
