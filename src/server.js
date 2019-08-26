@@ -1,25 +1,28 @@
 const http = require('http');
 const url = require('url');
-
-const morgan = require('morgan');
 const router = require('./routes/router');
+// const fs = require('fs');
 
-const logger = morgan('combined');
+// const options = {
+//   key: fs.readFileSync('server.key'),
+//   cert: fs.readFileSync('server.crt')
+// }
 
 const startServer = port => {
 
   const server = http.createServer((request, response) => {
-    
-    // Get route from the request
     const parsedUrl = url.parse(request.url);
-
-    // Get router function
-    const func = router[parsedUrl.pathname] || router.default;
-
-    logger(request, response, () => func(request, response));
+    request.parsedPath = parsedUrl.path.split('/')
+    const func = router[request.parsedPath[1]] || router.default;
+    func(request, response);
   });
 
-  server.listen(port);
+  server.listen(port, (err) => {
+    if (err) {
+      throw  err
+    }
+    console.log(`server is listening on ${port}`)
+  });
 };
 
 module.exports = startServer;
