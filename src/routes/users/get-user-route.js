@@ -1,32 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const {
-    readFile
-} = fs.promises;
+const User = require('../../db/schemas/user');
 
-const findUser = async (userid) => {
-    const usersPath = path.join(__dirname, '../../', 'db', 'users', 'all-users.json');
-    const readData = await readFile(usersPath);
-    const parsedData = JSON.parse(readData.toString());
-    const res = parsedData.find(user => user.id === +userid);
-    return res
-}
+const getUser = (request, response) => {
 
-const findUserRoute = async (request, response) => {
-    const res = await findUser(request.params.userId)
-    response.status(200)
+    const id = request.params.userId;
     response.removeHeader('X-Powered-By');
-    if (!res) {
+    const sendResponse = (user) => {
+        response.status(200);
         response.json({
-            status: 'not found',
-        })
-    } else {
-        response.json({
-            status: 'succes',
-            user: res
+            status: 'success',
+            user
         });
-    }
-    response.end();
-}
+    };
+    const sendError = () => {
+        response.status(404);
+        response.json({
+            status: 'not found'
+        });
+    };
+    const findUser = User.findById(id);
 
-module.exports = findUserRoute;
+    findUser
+        .then(sendResponse)
+        .catch(err => {
+            console.log(err.message);
+            sendError();
+        });
+};
+
+module.exports = getUser;

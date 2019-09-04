@@ -1,16 +1,16 @@
-const Product = require('../../db/schemas/product')
+const Order = require('./../../db/schemas/order')
 
-const productsRoute = (request, response) => {
-    const id = request.params.id;
+const getOrder = (request, response) => {
+    const id = request.params.orderId;
     response.removeHeader('X-Powered-By');
-    const sendResponse = (product) => {
-        if (!product) {
+    const sendResponse = (order) => {
+        if (!order) {
             sendError()
         } else {
             response.status(200);
             response.json({
                 status: 'success',
-                product
+                order
             });
         }
     };
@@ -20,9 +20,9 @@ const productsRoute = (request, response) => {
             status: 'not found'
         });
     };
-    const findProduct = Product.findById(id);
+    const findOrder = Order.findById(id);
 
-    findProduct
+    findOrder
         .then(sendResponse)
         .catch(err => {
             console.log(err.message);
@@ -30,4 +30,4 @@ const productsRoute = (request, response) => {
         });
 };
 
-module.exports = productsRoute;
+module.exports = getOrder;

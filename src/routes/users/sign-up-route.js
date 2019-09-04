@@ -1,24 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-const {
-  writeFile
-} = fs.promises;
-const {
-  readFile
-} = fs.promises;
-
-const saveUser = async (data) => {
-  const usersPath = path.join(__dirname, '../../', 'db', 'users', 'all-users.json');
-  const readData = await readFile(usersPath);
-  let parsedData
-  if (readData.length) {
-    parsedData = JSON.parse(readData.toString())
-  } else {
-    parsedData = []
-  }
-  parsedData.push(data);
-  await writeFile(usersPath, JSON.stringify(parsedData, null, 4));
-}
+const User = require('../../db/schemas/user')
 
 const signUpRoute = (request, response) => {
   let body = '';
@@ -26,17 +6,27 @@ const signUpRoute = (request, response) => {
     body = body + data;
   });
   request.on('end', function () {
-    const user = JSON.parse(body);
-    user.id = Date.now();
-    saveUser(user);
-    response.status(201)
+    const userData = JSON.parse(body);
+    const newUser = new User(userData);
     response.removeHeader('X-Powered-By');
-    response.json({
-      status: 'succes',
-      user: user
-    });
-    response.end();
-  });
-};
+    const sendResponse = (user) => {
+      response.status(201);
+      response.json({
+        status: 'success',
+        user
+      });
+    };
+
+    const sendError = () => {
+      response.status(400);
+      response.json({
+        error: 'user was not saved'
+      });
+    };
+    newUser.save()
+      .then(sendResponse)
+      .catch(sendError)
+  })
+}
 
 module.exports = signUpRoute;
