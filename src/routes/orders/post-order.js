@@ -1,4 +1,5 @@
 const Order = require('./../../db/schemas/order')
+const User = require('../../db/schemas/user')
 
 const postOrder = (request, response) => {
     let body = '';
@@ -27,7 +28,19 @@ const postOrder = (request, response) => {
             });
         };
         newOrder.save()
-            .then(sendResponse)
+            .then((data) => {
+                const order = data;
+                return User.updateOne({
+                    _id: orderData.creator
+                }, {
+                    $push: {
+                        orders: order._id
+                    }
+
+                }, {
+                    useFindAndModify: false
+                }).then(sendResponse(order))
+            })
             .catch(err => {
                 console.log(err);
                 sendError(err)

@@ -1,17 +1,32 @@
-const fs = require('fs');
-const path = require('path');
+const Product = require('../../db/schemas/product')
 
 const productsRoute = (request, response) => {
-  const filePath = path.join(__dirname, '../../', 'db', 'products', 'all-products.json');
-  const products = fs.statSync(filePath);
-  response.writeHead(200, {
-    'Content-Type': 'application/json',
-    'Content-Length': products.size
-  });
+  response.removeHeader('X-Powered-By');
+  const sendResponse = (product) => {
+    if (!product) {
+      sendError()
+    } else {
+      response.status(200);
+      response.json({
+        status: 'success',
+        product
+      });
+    }
+  };
+  const sendError = () => {
+    response.status(404);
+    response.json({
+      status: 'not found'
+    });
+  };
+  const findProduct = Product.find();
 
-  const readStream = fs.createReadStream(filePath);
-
-  readStream.pipe(response);
+  findProduct
+    .then(sendResponse)
+    .catch(err => {
+      console.log(err.message);
+      sendError();
+    });
 };
 
 module.exports = productsRoute;

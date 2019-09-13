@@ -1,10 +1,10 @@
 const Product = require('../../db/schemas/product')
 
 const productsRoute = (request, response) => {
-    const category = request.query.category;
+    ids = request.query.ids.split(",");
     response.removeHeader('X-Powered-By');
     const sendResponse = (product) => {
-        if (!product || product.length === 0) {
+        if (!product) {
             sendError()
         } else {
             response.status(200);
@@ -21,7 +21,9 @@ const productsRoute = (request, response) => {
         });
     };
     const findProduct = Product.find({
-        categories: category
+        '_id': {
+            $in: ids
+        }
     });
 
     findProduct
