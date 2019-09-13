@@ -1,28 +1,29 @@
 const http = require('http');
 const url = require('url');
 const router = require('./routes/router');
-// const fs = require('fs');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-// const options = {
-//   key: fs.readFileSync('server.key'),
-//   cert: fs.readFileSync('server.crt')
-// }
+const app = express();
+
+const errorHandler = (err, req, res, next) => {
+  res
+    .status(500)
+    .send('Error found: ' + err.stack);
+};
 
 const startServer = port => {
+  app
+    .use(bodyParser.urlencoded({
+      extended: false
+    }))
+    .use(bodyParser.json())
+    .use('/', router)
+    .use(errorHandler)
 
-  const server = http.createServer((request, response) => {
-    const parsedUrl = url.parse(request.url);
-    request.parsedPath = parsedUrl.path.split('/')
-    const func = router[request.parsedPath[1]] || router.default;
-    func(request, response);
-  });
-
-  server.listen(port, (err) => {
-    if (err) {
-      throw  err
-    }
+  app.listen(port, () => {
     console.log(`server is listening on ${port}`)
   });
-};
+}
 
 module.exports = startServer;

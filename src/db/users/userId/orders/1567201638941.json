@@ -1,0 +1,11 @@
+{
+    "id": "1567201638941",
+    "user": "userId",
+    "products": [
+        19112835,
+        19112834,
+        19112833
+    ],
+    "deliveryType": "delivery",
+    "deliveryAdress": "deliveryAdressText"
+}
